@@ -1,4 +1,4 @@
-const API = "http://localhost:5001/api";
+const API = "https://stay-ease-2.onrender.com/api";
 
 // ================= LOGIN =================
 async function login() {
@@ -31,6 +31,37 @@ async function login() {
     alert("Backend not running or connection error");
   }
 }
+
+//================== SIGNUP =================
+async function signup() {
+  try {
+    const name = document.getElementById("name").value;
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    const res = await fetch(`${API}/auth/signup`, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({ name, email, password })
+    });
+
+    const data = await res.json();
+
+    console.log(data);
+
+    if (res.ok) {
+      alert("Signup successful");
+      window.location = "login.html";
+    } else {
+      alert(data);
+    }
+
+  } catch (err) {
+    console.log(err);
+    alert("Backend not running or connection error");
+  }
+}
+
 
 // ================= LOGOUT =================
 function logout() {
