@@ -39,7 +39,7 @@ async function signup() {
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
 
-    const res = await fetch(`${API}/auth/signup`, {
+    const res = await fetch(`${API}/auth/register`, {
       method: "POST",
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({ name, email, password })
@@ -51,17 +51,15 @@ async function signup() {
 
     if (res.ok) {
       alert("Signup successful");
-      window.location = "login.html";
     } else {
       alert(data);
     }
 
   } catch (err) {
-    console.log(err);
-    alert("Backend not running or connection error");
+    console.log("Error:", err);
+    alert("Backend not reachable. Try again in few seconds.");
   }
 }
-
 
 // ================= LOGOUT =================
 function logout() {
