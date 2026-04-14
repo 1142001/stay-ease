@@ -1,38 +1,7 @@
 const Room = require("../models/Room");
 const cloudinary = require("../config/cloudinary");
 
-
-// Add Room
-exports.createRoom = async (req, res) => {
-  try {
-    console.log("Incoming:", req.body); // 👈 ADD THIS
-
-    const room = await Room.create(req.body);
-
-    console.log("Saved:", room); // 👈 ADD THIS
-
-    res.json(room);
-
-  } catch (error) {
-    console.log("Room Error:", error.message); // 👈 IMPORTANT
-    res.status(500).json(error.message);
-  }
-};
-
-exports.updateRoom = async (req, res) => {
-  try {
-    const room = await Room.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true }
-    );
-
-    res.json(room);
-  } catch (error) {
-    res.status(500).json(error.message);
-  }
-};
-
+// ✅ CREATE ROOM
 exports.createRoom = async (req, res) => {
   try {
     const { title, price, location, image } = req.body;
@@ -47,8 +16,23 @@ exports.createRoom = async (req, res) => {
     });
 
     res.json(room);
-
   } catch (err) {
+    console.log("Room Error:", err.message);
     res.status(500).json(err.message);
+  }
+};
+
+// ✅ UPDATE ROOM
+exports.updateRoom = async (req, res) => {
+  try {
+    const room = await Room.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
+
+    res.json(room);
+  } catch (error) {
+    res.status(500).json(error.message);
   }
 };

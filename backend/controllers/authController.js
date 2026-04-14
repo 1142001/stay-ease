@@ -2,36 +2,53 @@ const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-// Register
+// REGISTER
 exports.register = async (req, res) => {
   try {
-    console.log("Incoming Data:", req.body); // 👈 ADD THIS
-
     const { name, email, password } = req.body;
 
+    // ✅ validation
+    if (!name || !email || !password) {
+      return res.status(400).json("All fields are required");
+    }
+
+    // ✅ check existing user
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json("User already exists");
+    }
+
+    // ✅ hash password
     const hashed = await bcrypt.hash(password, 10);
 
+    // ✅ create user
     const user = await User.create({
       name,
       email,
       password: hashed
     });
 
-    console.log("Saved User:", user); // 👈 ADD THIS
+    // ✅ remove password from response
+    const { password: _, ...userData } = user._doc;
 
-    res.json(user);
+    res.json(userData);
+
   } catch (error) {
-    console.log("Error:", error.message); // 👈 ADD THIS
+    console.log("Register Error:", error.message);
     res.status(500).json(error.message);
   }
 };
 
-// Login
+
+// LOGIN
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    console.log("Login Data:", req.body); // debug
+    // ✅ validation
+    if (!email || !password) {
+      return res.status(400).json("All fields are required");
+    }
 
     const user = await User.findOne({ email });
     if (!user) {
@@ -40,36 +57,24 @@ exports.login = async (req, res) => {
 
     const isMatch = await bcrypt.compare(password, user.password);
 
-    console.log("Password Match:", isMatch); // debug
-
     if (!isMatch) {
       return res.status(400).json("Wrong password");
     }
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+    // ✅ token
+    const token = jwt.sign(
+      { id: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
 
-    res.json({ user, token });
+    // ✅ remove password
+    const { password: _, ...userData } = user._doc;
+
+    res.json({ user: userData, token });
 
   } catch (error) {
     console.log("Login Error:", error.message);
-    res.status(500).json(error.message);
-  }
-};
-// Register
-exports.register = async (req, res) => {
-  try {
-    const { name, email, password } = req.body;
-
-    const hashed = await bcrypt.hash(password, 10);
-
-    const user = await User.create({
-      name,
-      email,
-      password: hashed
-    });
-
-    res.json(user);
-  } catch (error) {
     res.status(500).json(error.message);
   }
 };

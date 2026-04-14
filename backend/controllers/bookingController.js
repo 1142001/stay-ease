@@ -18,10 +18,14 @@ exports.createBooking = async (req, res) => {
 
 // Get User Bookings
 exports.getBookings = async (req, res) => {
-  const bookings = await Booking.find({ userId: req.params.userId })
-    .populate("roomId");
+  try {
+    const bookings = await Booking.find({ userId: req.params.userId })
+      .populate("roomId");
 
-  res.json(bookings);
+    res.json(bookings);
+  } catch (error) {
+    res.status(500).json(error.message);
+  }
 };
 
 // Get ALL bookings (admin)

@@ -1,21 +1,42 @@
-const router = require("express").Router();
-const Room = require("../models/Room");
+const mongoose = require("mongoose");
 
-// GET rooms
-router.get("/", async (req, res) => {
-  const rooms = await Room.find();
-  res.json(rooms);
-});
+const roomSchema = new mongoose.Schema(
+  {
+    title: {
+      type: String,
+      required: true,
+      trim: true,
+    },
 
-// ADD room
-router.post("/", async (req, res) => {
-  try {
-    const room = await Room.create(req.body);
-    res.json(room);
-  } catch (error) {
-    console.log("ERROR:", error.message);
-    res.status(500).json({ error: error.message });
+    price: {
+      type: Number,
+      required: true,
+    },
+
+    location: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    image: {
+      type: String, // Cloudinary URL
+      required: true,
+    },
+
+    description: {
+      type: String,
+      default: "",
+    },
+
+    available: {
+      type: Boolean,
+      default: true,
+    },
+  },
+  {
+    timestamps: true, // ✅ adds createdAt & updatedAt
   }
-  
-});
-module.exports = router;
+);
+
+module.exports = mongoose.model("Room", roomSchema);

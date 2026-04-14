@@ -1,21 +1,21 @@
-const express = require("express");
-const router = express.Router();
+const router = require("express").Router();
+const { createRoom, updateRoom } = require("../controllers/roomController");
+console.log("updateRoom:", updateRoom); // 👈 ADD HERE
+
+const auth = require("../middleware/authMiddleware");
 const Room = require("../models/Room");
 
-
-
-
-// GET rooms
+// ✅ Get all rooms
 router.get("/", async (req, res) => {
-  const rooms = await Room.find();
-  res.json(rooms);
+  try {
+    const rooms = await Room.find();
+    res.json(rooms);
+  } catch (error) {
+    res.status(500).json(error.message);
+  }
 });
 
-// ADD room
-router.post("/", async (req, res) => {
-  const room = await Room.create(req.body);
-  res.json(room);
-});
-
+// ✅ Create room (protected)
+router.post("/", auth, createRoom);
 
 module.exports = router;
