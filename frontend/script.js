@@ -1,4 +1,4 @@
-const API = "https://stay-ease-2.onrender.com/api";
+const API = "https://stay-easee.onrender.com/api";
 
 // ================= LOGIN =================
 async function login() {
