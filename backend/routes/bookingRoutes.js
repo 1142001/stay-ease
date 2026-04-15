@@ -1,5 +1,4 @@
 const router = require("express").Router();
-
 const {
   createBooking,
   getBookings,
@@ -9,19 +8,16 @@ const {
 
 const authMiddleware = require("../middleware/authMiddleware");
 
-// ✅ Create booking
+// Create booking
 router.post("/", authMiddleware, createBooking);
 
-// ✅ Get logged-in user's bookings
-router.get("/my-bookings", authMiddleware, (req, res, next) => {
-  req.params.userId = req.user.id;
-  next();
-}, getBookings);
+// My bookings
+router.get("/my-bookings", authMiddleware, getBookings);
 
-// ✅ Get all bookings (admin)
+// All bookings (admin)
 router.get("/all", authMiddleware, getAllBookings);
 
-// ✅ Update booking status
+// Update status
 router.put("/:id", authMiddleware, updateBookingStatus);
 
 module.exports = router;

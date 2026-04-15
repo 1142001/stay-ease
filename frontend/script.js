@@ -3,29 +3,33 @@ const API = "https://stay-easee.onrender.com/api";
 // ================= LOGIN =================
 async function login() {
   try {
-    const res = await fetch(`${API}/auth/login`, {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    const res = await fetch("http://localhost:5001/api/auth/login", {
       method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({
-        email: email.value,
-        password: password.value
-      })
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password })
     });
 
-    console.log("Response:", res);
-
     const data = await res.json();
-    console.log("Data:", data);
+    console.log("LOGIN RESPONSE:", data);
+
+    if (!res.ok) {
+      alert(data.message || "Login failed");
+      return;
+    }
 
     if (data.token) {
       localStorage.setItem("token", data.token);
-      window.location = "index.html";
+      alert("Login successful");
+      window.location.href = "dashboard.html";
     } else {
-      alert(data.message);
+      alert("Token not received");
     }
 
   } catch (err) {
-    console.log("ERROR:", err);
+    console.log(err);
     alert("Backend not reachable");
   }
 }
@@ -37,24 +41,30 @@ async function signup() {
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
 
-    const res = await fetch(`${API}/auth/register`, {
+    console.log({ name, email, password });
+
+    const res = await fetch("http://localhost:5001/api/auth/register", {
       method: "POST",
-      headers: {"Content-Type": "application/json"},
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, email, password })
     });
 
     const data = await res.json();
+    console.log("RESPONSE:", data);
 
-    if (res.ok) {
-      alert("Signup successful");
-    } else {
-      alert(data.message || data);
+    if (!res.ok) {
+      alert(data.message || "Signup failed");
+      return;
     }
+
+    localStorage.setItem("token", data.token);
+    alert("Signup successful");
+
   } catch (err) {
+    console.log(err);
     alert("Backend not reachable");
   }
 }
-
 // ================= LOGOUT =================
 function logout() {
   localStorage.clear();
@@ -65,7 +75,7 @@ function logout() {
 let allRooms = [];
 
 async function getRooms() {
-  const res = await fetch(`${API}/rooms`);
+  const res = await fetch("http://localhost:5001/api/rooms");
   const data = await res.json();
   allRooms = data;
   displayRooms(data);
@@ -86,27 +96,46 @@ function displayRooms(data) {
 }
 
 // ================= BOOK =================
-async function book(roomId) {
-  const token = localStorage.getItem("token");
+async function bookRoom(roomId) {
+  try {
+    const token = localStorage.getItem("token");
 
-  await fetch(`${API}/bookings`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": "Bearer " + token
-    },
-    body: JSON.stringify({ roomId, date: new Date() })
-  });
+    const checkIn = prompt("Enter check-in date (YYYY-MM-DD)");
+    const checkOut = prompt("Enter check-out date (YYYY-MM-DD)");
 
-  alert("Booked!");
-  window.location = "dashboard.html";
+    const res = await fetch("http://localhost:5001/api/bookings/book", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        roomId,
+        checkIn,
+        checkOut
+      })
+    });
+
+    const data = await res.json();
+    console.log(data);
+
+    if (!res.ok) {
+      alert(data.message || "Booking failed");
+      return;
+    }
+
+    alert("Room booked successfully!");
+
+  } catch (err) {
+    console.log(err);
+    alert("Error booking room");
+  }
 }
-
 // ================= USER BOOKINGS =================
 async function getBookings() {
   const token = localStorage.getItem("token");
 
-  const res = await fetch(`${API}/bookings/my-bookings`, {
+  const res = await fetch("http://localhost:5001/api/bookings/my-bookings", {
     headers: {
       "Authorization": "Bearer " + token
     }
@@ -129,7 +158,7 @@ async function getBookings() {
 async function getAllBookings() {
   const token = localStorage.getItem("token");
 
-  const res = await fetch(`${API}/bookings/all`, {
+  const res = await fetch("http://localhost:5001/api/bookings/all", {
     headers: {
       "Authorization": "Bearer " + token
     }
@@ -149,7 +178,7 @@ async function getAllBookings() {
 
 // ================= ADMIN ROOMS =================
 async function getAdminRooms() {
-  const res = await fetch(`${API}/rooms`);
+  const res = await fetch("http://localhost:5001/api/rooms");
   const data = await res.json();
 
   document.getElementById("adminRooms").innerHTML =
@@ -188,7 +217,7 @@ async function addRoom() {
     return;
   }
 
-  await fetch(`${API}/rooms`, {
+  await fetch("http://localhost:5001/api/rooms", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -200,9 +229,85 @@ async function addRoom() {
   alert("Room added!");
   getAdminRooms();
 }
+//================== LOAD ROOMS =================
+
+async function loadRooms() {
+  try {
+    const res = await fetch("http://localhost:5001/api/rooms");
+    const rooms = await res.json();
+
+    console.log("ROOMS:", rooms);
+
+    const container = document.getElementById("roomsContainer");
+    container.innerHTML = "";
+
+    rooms.forEach(room => {
+      container.innerHTML += `
+        <div class="col-md-4">
+          <div class="card mb-4 shadow">
+            <div class="card-body">
+              <h5 class="card-title">${room.title}</h5>
+              <p class="card-text">Location: ${room.location}</p>
+              <p class="card-text">Price: ₹${room.price}</p>
+              <button onclick="bookRoom('${room._id}')" class="btn btn-success w-100">
+                Book Now
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    });
+
+  } catch (err) {
+    console.log(err);
+    alert("Error loading rooms");
+  }
+}
+
+//================== BOOK ROOM =================
+async function bookRoom(roomId) {
+  try {
+    const token = localStorage.getItem("token");
+
+    const checkIn = document.getElementById(`checkIn-${roomId}`).value;
+    const checkOut = document.getElementById(`checkOut-${roomId}`).value;
+
+    if (!checkIn || !checkOut) {
+      alert("Please select dates");
+      return;
+    }
+
+    const res = await fetch("http://localhost:5001/api/bookings/book", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        roomId,
+        checkIn,
+        checkOut
+      })
+    });
+
+    const data = await res.json();
+    console.log("BOOKING:", data);
+
+    if (!res.ok) {
+      alert(data.message || "Booking failed");
+      return;
+    }
+
+    alert("Room booked successfully ✅");
+
+  } catch (err) {
+    console.log(err);
+    alert("Error booking room");
+  }
+}
 
 // ================= AUTO LOAD =================
-if (document.getElementById("rooms")) getRooms();
+if (document.getElementById("rooms")) loadRooms();
 if (document.getElementById("bookings")) getBookings();
 if (document.getElementById("adminRooms")) getAdminRooms();
 if (document.getElementById("adminBookings")) getAllBookings();

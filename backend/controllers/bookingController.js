@@ -1,31 +1,53 @@
 const Booking = require("../models/Booking");
 
+exports.bookRoom = async (req, res) => {
+  try {
+    const userId = req.user.id; // from JWT middleware
+    const { roomId, checkIn, checkOut } = req.body;
+
+    if (!roomId || !checkIn || !checkOut) {
+      return res.status(400).json({ message: "All fields required" });
+    }
+
+    const booking = await Booking.create({
+      userId,
+      roomId,
+      checkIn,
+      checkOut
+    });
+
+    res.status(201).json({
+      message: "Room booked successfully",
+      booking
+    });
+
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
 // Create Booking
 exports.createBooking = async (req, res) => {
   try {
     const { userId, roomId, date } = req.body;
 
     if (!userId || !roomId || !date) {
-      return res.status(400).json("All fields required");
+      return res.status(400).json({ message: "All fields required" });
     }
 
     const booking = await Booking.create({ userId, roomId, date });
     res.json(booking);
   } catch (error) {
-    res.status(500).json(error.message);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
 // Get User Bookings
 exports.getBookings = async (req, res) => {
-  try {
-    const bookings = await Booking.find({ userId: req.params.userId })
-      .populate("roomId");
+  const bookings = await Booking.find({ userId: req.params.userId })
+    .populate("roomId");
 
-    res.json(bookings);
-  } catch (error) {
-    res.status(500).json(error.message);
-  }
+  res.json(bookings);
 };
 
 // Get ALL bookings (admin)
@@ -48,6 +70,6 @@ exports.updateBookingStatus = async (req, res) => {
 
     res.json(booking);
   } catch (error) {
-    res.status(500).json(error.message);
+    res.status(500).json({ message: "Server error" });
   }
 };
