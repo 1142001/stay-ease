@@ -11,7 +11,7 @@ connectDB();
 
 // ✅ Middleware
 app.use(cors({
-  origin: ["http://127.0.0.1:5500", "http://localhost:5500"], // allow all (easy fix)
+  origin: ["https://stay-ease-9u5a.vercel.app"], // allow all (easy fix)
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"]
 }));
