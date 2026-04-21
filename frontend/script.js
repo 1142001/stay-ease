@@ -6,7 +6,7 @@ async function login() {
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
 
-    const res = await fetch("http://localhost:5001/api/auth/login", {
+    const res = await fetch("https://stay-easee.onrender.com/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password })
@@ -43,7 +43,7 @@ async function signup() {
 
     console.log({ name, email, password });
 
-    const res = await fetch("http://localhost:5001/api/auth/register", {
+    const res = await fetch("https://stay-easee.onrender.com/api/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, email, password })
@@ -75,7 +75,7 @@ function logout() {
 let allRooms = [];
 
 async function getRooms() {
-  const res = await fetch("http://localhost:5001/api/rooms");
+  const res = await fetch("https://stay-easee.onrender.com/api/rooms");
   const data = await res.json();
   allRooms = data;
   displayRooms(data);
@@ -103,7 +103,7 @@ async function bookRoom(roomId) {
     const checkIn = prompt("Enter check-in date (YYYY-MM-DD)");
     const checkOut = prompt("Enter check-out date (YYYY-MM-DD)");
 
-    const res = await fetch("http://localhost:5001/api/bookings/book", {
+    const res = await fetch("https://stay-easee.onrender.com/api/bookings/book", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -135,7 +135,7 @@ async function bookRoom(roomId) {
 async function getBookings() {
   const token = localStorage.getItem("token");
 
-  const res = await fetch("http://localhost:5001/api/bookings/my-bookings", {
+  const res = await fetch("https://stay-easee.onrender.com/api/bookings/my-bookings", {
     headers: {
       "Authorization": "Bearer " + token
     }
@@ -158,7 +158,7 @@ async function getBookings() {
 async function getAllBookings() {
   const token = localStorage.getItem("token");
 
-  const res = await fetch("http://localhost:5001/api/bookings/all", {
+  const res = await fetch("https://stay-easee.onrender.com/api/bookings/all", {
     headers: {
       "Authorization": "Bearer " + token
     }
@@ -178,7 +178,7 @@ async function getAllBookings() {
 
 // ================= ADMIN ROOMS =================
 async function getAdminRooms() {
-  const res = await fetch("http://localhost:5001/api/rooms");
+  const res = await fetch("https://stay-easee.onrender.com/api/rooms");
   const data = await res.json();
 
   document.getElementById("adminRooms").innerHTML =
@@ -193,7 +193,7 @@ async function getAdminRooms() {
 async function deleteRoom(id) {
   const token = localStorage.getItem("token");
 
-  await fetch(`${API}/rooms/${id}`, {
+  await fetch("https://stay-easee.onrender.com/api/rooms/${id}", {
     method: "DELETE",
     headers: {
       "Authorization": "Bearer " + token
@@ -217,7 +217,7 @@ async function addRoom() {
     return;
   }
 
-  await fetch("http://localhost:5001/api/rooms", {
+  await fetch("https://stay-easee.onrender.com/api/rooms", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -233,7 +233,7 @@ async function addRoom() {
 
 async function loadRooms() {
   try {
-    const res = await fetch("http://localhost:5001/api/rooms");
+    const res = await fetch("https://stay-easee.onrender.com/api/rooms");
     const rooms = await res.json();
 
     console.log("ROOMS:", rooms);
@@ -277,7 +277,7 @@ async function bookRoom(roomId) {
       return;
     }
 
-    const res = await fetch("http://localhost:5001/api/bookings/book", {
+    const res = await fetch("https://stay-easee.onrender.com/api/bookings/book", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
